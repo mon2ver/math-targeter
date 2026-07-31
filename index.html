@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>4등급 타게터</title>
+    <style>
+        body { 
+            font-family: 'Pretendard', -apple-system, sans-serif; 
+            background-color: #f4f7f6; 
+            padding: 20px; 
+            color: #333;
+        }
+        
+        h2 { text-align: center; color: #2c3e50; margin-bottom: 15px; }
+
+        /* 탭 버튼 스타일 */
+        .tab-container {
+            text-align: center; 
+            margin-bottom: 20px;
+        }
+        .tab-container button {
+            padding: 10px 25px; 
+            cursor: pointer;
+            border: 1px solid #ccc;
+            background-color: white;
+            border-radius: 20px;
+            font-weight: bold;
+            margin: 0 5px;
+            transition: all 0.2s;
+        }
+        .tab-container button:hover { background-color: #e8f4f8; }
+
+        /* 요약 통계 대시보드 */
+        .stats-board {
+            background-color: white;
+            padding: 15px 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            margin-bottom: 20px;
+            text-align: center;
+            border-left: 5px solid #2c3e50;
+        }
+        .stats-title { font-size: 1.1em; font-weight: bold; color: #2c3e50; margin-bottom: 10px; }
+        .stats-highlight { color: #e74c3c; font-size: 1.2em; font-weight: bold; }
+
+        .table-container { 
+            overflow-x: auto; 
+            background: white; 
+            border-radius: 10px; 
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05); 
+        }
+
+        table { 
+            width: 100%; 
+            border-collapse: collapse; 
+            white-space: nowrap; 
+        }
+
+        th, td { 
+            padding: 12px 15px; 
+            text-align: center; 
+            border-bottom: 1px solid #eee; 
+            border-right: 1px solid #eee;
+        }
+
+        th { 
+            background-color: #2c3e50; 
+            color: white; 
+            font-weight: 500;
+            font-size: 0.9em;
+        }
+        
+        input[type="number"] { 
+            width: 50px; 
+            padding: 6px; 
+            text-align: center; 
+            border: 1px solid #ccc; 
+            border-radius: 5px; 
+            font-weight: bold;
+        }
+
+        .highlight { 
+            background-color: #e8f4f8; 
+            font-weight: bold; 
+            color: #0056b3;
+        }
+
+        /* 짝수 행 옅은 회색 줄무늬 */
+        #exam-data-body tr:nth-child(even) { 
+            background-color: #F2F2F2; 
+        }
+
+        /* 행 강조 스타일 (!important로 줄무늬 덮어쓰기) */
+        .bold-row { font-weight: bold; color: #000; }
+        .bg-eval { background-color: #FFFFCC !important; }
+        .bg-suneung { background-color: #FFCCFF !important; }
+
+    </style>
+</head>
+<body>
+
+    <!-- 탭을 최상단으로 이동 -->
+    <div class="tab-container">
+        <button onclick="changeGrade(1)">고1</button>
+        <button onclick="changeGrade(2)">고2</button>
+        <button onclick="changeGrade(3)">고3</button>
+    </div>
+
+    <h2>🎯 수학 모의고사 4등급 타게터</h2>
+
+    <!-- 요약 통계 대시보드 구역 -->
+    <div class="stats-board" id="stats-container">
+        <!-- 자바스크립트에서 동적으로 텍스트가 들어갑니다 -->
+    </div>
+
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th rowspan="2">시험명</th>
+                    <th colspan="5">등급컷</th>
+                    <th colspan="2">추가로 맞춘 4점 (개수)</th>
+                    <th colspan="2">2·3점 완벽 (48점)</th>
+                    <th colspan="2">48점 + 찍기</th>
+                    <th colspan="2" class="highlight">최종 (내 실력 + 찍기)</th>
+                    <th colspan="2">목표 달성 필요 문항</th>
+                </tr>
+                <tr>
+                    <th>1컷</th><th>2컷</th><th>3컷</th><th>4컷</th><th>5컷</th>
+                    <th>객관식</th><th>단답형</th>
+                    <th>점수</th><th>등급</th>
+                    <th>점수</th><th>등급</th>
+                    <th class="highlight">점수</th><th class="highlight">등급</th>
+                    <th>3등급</th><th>2등급</th>
+                </tr>
+            </thead>
+            <tbody id="exam-data-body">
+                <!-- script.js에서 동적으로 채워집니다 -->
+            </tbody>
+        </table>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
