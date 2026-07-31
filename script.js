@@ -3,7 +3,6 @@ const SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSp3Ds3El
 let examDB = []; 
 let currentGrade = 3; 
 
-// 숫자 등급을 이모지로 변환하는 객체
 const emojiGrade = {
     1: "1️⃣", 2: "2️⃣", 3: "3️⃣", 4: "4️⃣", 5: "5️⃣", 6: "6️⃣"
 };
@@ -47,7 +46,6 @@ function changeGrade(grade) {
     renderTable();
 }
 
-// 계산용 숫자 등급 반환
 function getGradeNum(score, cuts) {
     if (score >= cuts[1]) return 1;
     if (score >= cuts[2]) return 2;
@@ -93,18 +91,20 @@ function calculateGuessingScore(answers, solvedMCQCount) {
     return minAddedScore;
 }
 
-// 요약 통계 대시보드 렌더링 함수
-function renderStats(filteredDB) {
-    const statsContainer = document.getElementById("stats-container");
-    if (filteredDB.length === 0) {
-        statsContainer.innerHTML = "데이터가 없습니다.";
-        return;
+// 통계 블록 생성 헬퍼 함수
+function getStatsBlockHTML(db, title) {
+    if (db.length === 0) {
+        return `
+            <div class="stats-block">
+                <div class="stats-title">${title}</div>
+                데이터가 부족합니다.
+            </div>`;
     }
 
     let count4Grade = 0;
     let count3Grade = 0;
 
-    filteredDB.forEach(exam => {
+    db.forEach(exam => {
         const guessBaseScore = 48 + calculateGuessingScore(exam.answers, 0);
         const gradeNum = getGradeNum(guessBaseScore, exam.cuts);
         
@@ -112,14 +112,44 @@ function renderStats(filteredDB) {
         if (gradeNum <= 3) count3Grade++;
     });
 
-    const rate4 = Math.round((count4Grade / filteredDB.length) * 100);
-    const rate3 = Math.round((count3Grade / filteredDB.length) * 100);
+    const rate4 = Math.round((count4Grade / db.length) * 100);
+    const rate3 = Math.round((count3Grade / db.length) * 100);
 
-    statsContainer.innerHTML = `
-        <div class="stats-title">💡 2점+3점만 모두 맞춰도(48점) 4점짜리를 최적의 번호로 찍는다면?</div>
-        현재 ${filteredDB.length}개의 모의고사 데이터 기준<br>
-        4등급 달성 확률: <span class="stats-highlight">${rate4}%</span> | 3등급 달성 확률: <span class="stats-highlight">${rate3}%</span>
+    return `
+        <div class="stats-block">
+            <div class="stats-title">${title}</div>
+            ${db.length}개 시험 기준<br>
+            4등급 달성: <span class="stats-highlight">${rate4}%</span> | 3등급 달성: <span class="stats-highlight">${rate3}%</span>
+        </div>
     `;
+}
+
+// 요약 통계 대시보드 렌더링 함수
+function renderStats(filteredDB) {
+    const statsContainer = document.getElementById("stats-container");
+    statsContainer.innerHTML = ""; // 기존 내용 초기화
+    
+    if (filteredDB.length === 0) {
+        statsContainer.innerHTML = "<div class='stats-block'>해당 학년의 데이터가 없습니다.</div>";
+        return;
+    }
+
+    let html = "";
+
+    if (currentGrade === 3) {
+        // 고3인 경우: 전체, 평가원, 수능으로 필터링하여 각각 블록 생성
+        const evalDB = filteredDB.filter(exam => exam.title.endsWith("원") || exam.title.endsWith("능"));
+        const suneungDB = filteredDB.filter(exam => exam.title.endsWith("능"));
+        
+        html += getStatsBlockHTML(filteredDB, "📊 전체 모의고사");
+        html += getStatsBlockHTML(evalDB, "🎯 평가원 주관 (6/9월/수능)");
+        html += getStatsBlockHTML(suneungDB, "🔥 오직 수능만");
+    } else {
+        // 고1, 고2인 경우: 단일 블록
+        html += getStatsBlockHTML(filteredDB, "💡 2점+3점만 모두 맞추고(48점) 찍는다면?");
+    }
+
+    statsContainer.innerHTML = html;
 }
 
 function renderTable() {
@@ -128,11 +158,10 @@ function renderTable() {
 
     const filteredDB = examDB.filter(exam => exam.grade === currentGrade);
     
-    // 통계 대시보드 업데이트
     renderStats(filteredDB);
 
     if (filteredDB.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="15">해당 학년의 데이터가 없습니다.</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="16">해당 학년의 데이터가 없습니다.</td></tr>`;
         return;
     }
 
@@ -146,12 +175,10 @@ function renderTable() {
         const title4 = exam.title.substring(0, 4);
         let rowClass = "";
 
-        // 3번 요청: 앞 네 글자가 2026 또는 2027이면 굵은 글씨
         if (title4 === "2026" || title4 === "2027") {
             rowClass += " bold-row";
         }
         
-        // 4번 요청: 끝 글자 "원", "능" 배경색 처리 (줄무늬보다 우선)
         if (exam.title.endsWith("원")) {
             rowClass += " bg-eval";
         } else if (exam.title.endsWith("능")) {
@@ -160,6 +187,7 @@ function renderTable() {
 
         tr.className = rowClass.trim();
 
+        // 4등급 셀, 이모지 클래스(emoji-grade) 적용
         tr.innerHTML = `
             <td>${exam.title}</td>
             <td>${exam.cuts[1]}</td><td>${exam.cuts[2]}</td><td>${exam.cuts[3]}</td><td>${exam.cuts[4]}</td><td>${exam.cuts[5]}</td>
@@ -167,11 +195,12 @@ function renderTable() {
             <td><input type="number" min="0" max="8" value="0" id="mcq-${rowId}" onchange="updateRow(${rowId}, ${exam.grade})"></td>
             <td><input type="number" min="0" max="5" value="0" id="saq-${rowId}" onchange="updateRow(${rowId}, ${exam.grade})"></td>
             
-            <td>48</td><td>${emojiGrade[getGradeNum(48, exam.cuts)]}</td>
-            <td>${guessBaseScore}</td><td>${emojiGrade[guessBaseGradeNum]}</td>
+            <td>48</td><td class="emoji-grade">${emojiGrade[getGradeNum(48, exam.cuts)]}</td>
+            <td>${guessBaseScore}</td><td class="emoji-grade">${emojiGrade[guessBaseGradeNum]}</td>
             
             <td class="highlight" id="final-score-${rowId}">${guessBaseScore}</td>
-            <td class="highlight" id="final-grade-${rowId}">${emojiGrade[guessBaseGradeNum]}</td>
+            <td class="highlight emoji-grade" id="final-grade-${rowId}">${emojiGrade[guessBaseGradeNum]}</td>
+            <td id="req-4-${rowId}"></td>
             <td id="req-3-${rowId}"></td>
             <td id="req-2-${rowId}"></td>
         `;
@@ -191,12 +220,14 @@ function updateRow(rowId, grade) {
     const finalScore = 48 + (mcqSolved * 4) + (saqSolved * 4) + calculateGuessingScore(exam.answers, mcqSolved);
     const finalGradeNum = getGradeNum(finalScore, exam.cuts);
 
-    // 2번 요청: 달성 완료 시 ✅ 이모지 출력
+    // 4등급 추가
+    const req4 = finalScore >= exam.cuts[4] ? "✅" : "+" + Math.ceil((exam.cuts[4] - finalScore) / 4);
     const req3 = finalScore >= exam.cuts[3] ? "✅" : "+" + Math.ceil((exam.cuts[3] - finalScore) / 4);
     const req2 = finalScore >= exam.cuts[2] ? "✅" : "+" + Math.ceil((exam.cuts[2] - finalScore) / 4);
 
     document.getElementById(`final-score-${rowId}`).innerText = finalScore;
     document.getElementById(`final-grade-${rowId}`).innerText = emojiGrade[finalGradeNum];
+    document.getElementById(`req-4-${rowId}`).innerText = req4;
     document.getElementById(`req-3-${rowId}`).innerText = req3;
     document.getElementById(`req-2-${rowId}`).innerText = req2;
 }
