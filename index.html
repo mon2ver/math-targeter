@@ -14,7 +14,6 @@
         
         h2 { text-align: center; color: #2c3e50; margin-bottom: 15px; }
 
-        /* 탭 버튼 스타일 */
         .tab-container {
             text-align: center; 
             margin-bottom: 20px;
@@ -31,15 +30,23 @@
         }
         .tab-container button:hover { background-color: #e8f4f8; }
 
-        /* 요약 통계 대시보드 */
-        .stats-board {
+        /* 통계 대시보드를 여러 블록으로 나누기 위한 Flexbox 설정 */
+        .stats-container {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+        }
+        .stats-block {
             background-color: white;
             padding: 15px 20px;
             border-radius: 10px;
             box-shadow: 0 4px 15px rgba(0,0,0,0.05);
-            margin-bottom: 20px;
-            text-align: center;
             border-left: 5px solid #2c3e50;
+            flex: 1;
+            min-width: 280px;
+            text-align: center;
         }
         .stats-title { font-size: 1.1em; font-weight: bold; color: #2c3e50; margin-bottom: 10px; }
         .stats-highlight { color: #e74c3c; font-size: 1.2em; font-weight: bold; }
@@ -86,12 +93,12 @@
             color: #0056b3;
         }
 
-        /* 짝수 행 옅은 회색 줄무늬 */
+        /* 이모지 크기 확대용 클래스 */
+        .emoji-grade { font-size: 1.4em; }
+
         #exam-data-body tr:nth-child(even) { 
             background-color: #F2F2F2; 
         }
-
-        /* 행 강조 스타일 (!important로 줄무늬 덮어쓰기) */
         .bold-row { font-weight: bold; color: #000; }
         .bg-eval { background-color: #FFFFCC !important; }
         .bg-suneung { background-color: #FFCCFF !important; }
@@ -100,7 +107,6 @@
 </head>
 <body>
 
-    <!-- 탭을 최상단으로 이동 -->
     <div class="tab-container">
         <button onclick="changeGrade(1)">고1</button>
         <button onclick="changeGrade(2)">고2</button>
@@ -109,9 +115,9 @@
 
     <h2>🎯 수학 모의고사 4등급 타게터</h2>
 
-    <!-- 요약 통계 대시보드 구역 -->
-    <div class="stats-board" id="stats-container">
-        <!-- 자바스크립트에서 동적으로 텍스트가 들어갑니다 -->
+    <!-- 통계 대시보드 컨테이너 -->
+    <div class="stats-container" id="stats-container">
+        <!-- 자바스크립트에서 동적으로 블록이 들어갑니다 -->
     </div>
 
     <div class="table-container">
@@ -124,7 +130,8 @@
                     <th colspan="2">2·3점 완벽 (48점)</th>
                     <th colspan="2">48점 + 찍기</th>
                     <th colspan="2" class="highlight">최종 (내 실력 + 찍기)</th>
-                    <th colspan="2">목표 달성 필요 문항</th>
+                    <!-- 4등급 추가로 인한 colspan 수정 -->
+                    <th colspan="3">목표 달성 필요 문항</th>
                 </tr>
                 <tr>
                     <th>1컷</th><th>2컷</th><th>3컷</th><th>4컷</th><th>5컷</th>
@@ -132,11 +139,11 @@
                     <th>점수</th><th>등급</th>
                     <th>점수</th><th>등급</th>
                     <th class="highlight">점수</th><th class="highlight">등급</th>
-                    <th>3등급</th><th>2등급</th>
+                    <!-- 4등급 열 추가 -->
+                    <th>4등급</th><th>3등급</th><th>2등급</th>
                 </tr>
             </thead>
             <tbody id="exam-data-body">
-                <!-- script.js에서 동적으로 채워집니다 -->
             </tbody>
         </table>
     </div>
