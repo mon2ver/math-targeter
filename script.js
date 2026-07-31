@@ -220,16 +220,18 @@ function updateRow(rowId, grade) {
     const finalScore = 48 + (mcqSolved * 4) + (saqSolved * 4) + calculateGuessingScore(exam.answers, mcqSolved);
     const finalGradeNum = getGradeNum(finalScore, exam.cuts);
 
-    // 4등급 추가
-    const req4 = finalScore >= exam.cuts[4] ? "✅" : "+" + Math.ceil((exam.cuts[4] - finalScore) / 4);
-    const req3 = finalScore >= exam.cuts[3] ? "✅" : "+" + Math.ceil((exam.cuts[3] - finalScore) / 4);
-    const req2 = finalScore >= exam.cuts[2] ? "✅" : "+" + Math.ceil((exam.cuts[2] - finalScore) / 4);
+    // ✅ 이모지에 emoji-grade 클래스를 적용하여 크기 확대
+    const req4 = finalScore >= exam.cuts[4] ? '<span class="emoji-grade">✅</span>' : "+" + Math.ceil((exam.cuts[4] - finalScore) / 4);
+    const req3 = finalScore >= exam.cuts[3] ? '<span class="emoji-grade">✅</span>' : "+" + Math.ceil((exam.cuts[3] - finalScore) / 4);
+    const req2 = finalScore >= exam.cuts[2] ? '<span class="emoji-grade">✅</span>' : "+" + Math.ceil((exam.cuts[2] - finalScore) / 4);
 
     document.getElementById(`final-score-${rowId}`).innerText = finalScore;
     document.getElementById(`final-grade-${rowId}`).innerText = emojiGrade[finalGradeNum];
-    document.getElementById(`req-4-${rowId}`).innerText = req4;
-    document.getElementById(`req-3-${rowId}`).innerText = req3;
-    document.getElementById(`req-2-${rowId}`).innerText = req2;
+    
+    // HTML 태그가 적용되도록 innerText 대신 innerHTML 사용
+    document.getElementById(`req-4-${rowId}`).innerHTML = req4;
+    document.getElementById(`req-3-${rowId}`).innerHTML = req3;
+    document.getElementById(`req-2-${rowId}`).innerHTML = req2;
 }
 
 window.onload = loadData;
