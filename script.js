@@ -190,7 +190,11 @@ function renderTable() {
         // 4등급 셀, 이모지 클래스(emoji-grade) 적용
         tr.innerHTML = `
             <td>${exam.title}</td>
-            <td>${exam.cuts[1]}</td><td>${exam.cuts[2]}</td><td>${exam.cuts[3]}</td><td>${exam.cuts[4]}</td><td>${exam.cuts[5]}</td>
+            <td id="cut-1-${rowId}">${exam.cuts[1]}</td>
+            <td id="cut-2-${rowId}">${exam.cuts[2]}</td>
+            <td id="cut-3-${rowId}">${exam.cuts[3]}</td>
+            <td id="cut-4-${rowId}">${exam.cuts[4]}</td>
+            <td id="cut-5-${rowId}">${exam.cuts[5]}</td>
             
             <td><input type="number" min="0" max="8" value="0" id="mcq-${rowId}" onchange="updateRow(${rowId}, ${exam.grade})"></td>
             <td><input type="number" min="0" max="5" value="0" id="saq-${rowId}" onchange="updateRow(${rowId}, ${exam.grade})"></td>
@@ -220,6 +224,23 @@ function updateRow(rowId, grade) {
     const finalScore = 48 + (mcqSolved * 4) + (saqSolved * 4) + calculateGuessingScore(exam.answers, mcqSolved);
     const finalGradeNum = getGradeNum(finalScore, exam.cuts);
 
+    // --- 👇 [여기서부터 새로 추가하는 로직] 👇 ---
+    // 1. 해당 행의 1컷~5컷 테두리 모두 지우기 (초기화)
+    for (let i = 1; i <= 5; i++) {
+        const cutCell = document.getElementById(`cut-${i}-${rowId}`);
+        if (cutCell) {
+            cutCell.classList.remove("target-cut");
+        }
+    }
+    // 2. 최종 등급이 1~5등급 사이라면 해당 컷 칸에 빨간 테두리 씌우기
+    if (finalGradeNum >= 1 && finalGradeNum <= 5) {
+        const targetCell = document.getElementById(`cut-${finalGradeNum}-${rowId}`);
+        if (targetCell) {
+            targetCell.classList.add("target-cut");
+        }
+    }
+    // --- 👆 [여기까지] 👆 ---
+    
     // ✅ 이모지에 emoji-grade 클래스를 적용하여 크기 확대
     const req4 = finalScore >= exam.cuts[4] ? '<span class="emoji-grade">✅</span>' : "+" + Math.ceil((exam.cuts[4] - finalScore) / 4);
     const req3 = finalScore >= exam.cuts[3] ? '<span class="emoji-grade">✅</span>' : "+" + Math.ceil((exam.cuts[3] - finalScore) / 4);
