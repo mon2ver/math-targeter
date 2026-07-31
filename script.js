@@ -142,7 +142,7 @@ function renderStats(filteredDB) {
         const suneungDB = filteredDB.filter(exam => exam.title.endsWith("능"));
         
         html += getStatsBlockHTML(filteredDB, "📊 전체 모의고사");
-        html += getStatsBlockHTML(evalDB, "🎯 평가원 주관 (6/9월/수능)");
+        html += getStatsBlockHTML(evalDB, "🎯 평가원 주관 (6월/9월/수능)");
         html += getStatsBlockHTML(suneungDB, "🔥 오직 수능만");
     } else {
         // 고1, 고2인 경우: 단일 블록
